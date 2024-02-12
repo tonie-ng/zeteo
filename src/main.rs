@@ -14,11 +14,14 @@ fn main() {
     let input = parse_input(args);
 
     let lines = read_file(input.file_path);
+    find(lines, input.pattern);
+}
 
+fn find(lines: Lines<BufReader<File>>, pattern: String) {
     for line in lines {
         match line {
             Ok(line) => {
-                if line.contains(&input.pattern) {
+                if line.contains(&pattern) {
                     println!("{}", line);
                 }
             }
