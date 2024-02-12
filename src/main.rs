@@ -35,7 +35,7 @@ fn read_file(file_path: PathBuf) -> Lines<BufReader<File>> {
             reader.lines()
         }
         Err(err) => {
-            println!("Error reading the file {:?}", err);
+            println!("Error reading the file: {}", err.to_string());
             exit(1);
         }
     }
