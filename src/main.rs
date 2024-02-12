@@ -1,4 +1,6 @@
 use std::env::args;
+use std::fs::File;
+use std::io::{BufRead, BufReader, Lines};
 use std::path::PathBuf;
 use std::process::exit;
 
@@ -11,8 +13,32 @@ fn main() {
     let args: Vec<String> = args().collect();
     let input = parse_input(args);
 
-    println!("{:?}", input.file_path);
-    println!("{:?}", input.pattern);
+    let lines = read_file(input.file_path);
+
+    for line in lines {
+        match line {
+            Ok(line) => {
+                if line.contains(&input.pattern) {
+                    println!("{}", line);
+                }
+            }
+            Err(_) => break,
+        }
+    }
+}
+
+fn read_file(file_path: PathBuf) -> Lines<BufReader<File>> {
+    let f = File::open(file_path);
+    match f {
+        Ok(f) => {
+            let reader = BufReader::new(f);
+            reader.lines()
+        }
+        Err(err) => {
+            println!("Error reading the file {:?}", err);
+            exit(1);
+        }
+    }
 }
 
 fn parse_input(args: Vec<String>) -> Input {
