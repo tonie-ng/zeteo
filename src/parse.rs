@@ -8,7 +8,7 @@ pub struct Input {
 }
 
 fn allowed_flags() -> Vec<&'static str> {
-    vec!["-n", "-rev"]
+    vec!["-n", "-rev", "-revn"]
 }
 
 pub fn parse_flag(flag: &String) -> &str {

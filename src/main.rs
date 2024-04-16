@@ -8,6 +8,11 @@ use std::process::exit;
 mod parse;
 mod utils;
 
+enum SearchMode {
+    Reverse,
+    Normal,
+}
+
 fn main() {
     let args: Vec<String> = args().collect();
 
@@ -16,46 +21,50 @@ fn main() {
 
     let flag = input.flag.as_str();
     match flag {
-        "-n" => count(lines, input.pattern),
-        "--rev" => find(lines, input.pattern, true),
-        _ => find(lines, input.pattern, false),
+        "-n" => count(lines, input.pattern, SearchMode::Normal),
+        "-revn" => count(lines, input.pattern, SearchMode::Reverse),
+        "-rev" => find(lines, input.pattern, SearchMode::Reverse),
+        _ => find(lines, input.pattern, SearchMode::Normal),
     }
 }
 
-fn find(lines: Lines<BufReader<File>>, pattern: String, mode: bool) {
+fn find(lines: Lines<BufReader<File>>, pattern: String, mode: SearchMode) {
     for line in lines {
         match line {
-            Ok(line) => print_line(mode, line, &pattern),
+            Ok(line) => match mode {
+                SearchMode::Normal => {
+                    if line.contains(&pattern) {
+                        println!("{}", line)
+                    }
+                }
+                SearchMode::Reverse => {
+                    if !line.contains(&pattern) {
+                        println!("{}", line)
+                    }
+                }
+            },
             Err(_) => break,
         }
     }
 }
 
-fn print_line(mode: bool, line: String, pattern: &String) {
-    match mode {
-        true => {
-            if line.contains(*&pattern) {
-                println!("{}", line)
-            }
-        }
-        false => {
-            if !line.contains(*&pattern) {
-                println!("{}", line)
-            }
-        }
-    }
-}
-
-fn count(lines: Lines<BufReader<File>>, pattern: String) {
+fn count(lines: Lines<BufReader<File>>, pattern: String, mode: SearchMode) {
     let mut line_count = 0;
 
     for line in lines {
         match line {
-            Ok(line) => {
-                if line.contains(&pattern) {
-                    line_count += 1;
+            Ok(line) => match mode {
+                SearchMode::Normal => {
+                    if line.contains(&pattern) {
+                        line_count += 1;
+                    }
                 }
-            }
+                SearchMode::Reverse => {
+                    if !line.contains(&pattern) {
+                        line_count += 1;
+                    }
+                }
+            },
             Err(_) => break,
         }
     }
