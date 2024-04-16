@@ -1,14 +1,12 @@
+use crate::parse::parse_input;
 use std::env::args;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Lines};
 use std::path::PathBuf;
 use std::process::exit;
 
-struct Input {
-    pattern: String,
-    file_path: PathBuf,
-    flag: String,
-}
+mod parse;
+mod utils;
 
 fn main() {
     let args: Vec<String> = args().collect();
@@ -19,19 +17,31 @@ fn main() {
     let flag = input.flag.as_str();
     match flag {
         "-n" => count(lines, input.pattern),
-        _ => find(lines, input.pattern),
+        "--rev" => find(lines, input.pattern, true),
+        _ => find(lines, input.pattern, false),
     }
 }
 
-fn find(lines: Lines<BufReader<File>>, pattern: String) {
+fn find(lines: Lines<BufReader<File>>, pattern: String, mode: bool) {
     for line in lines {
         match line {
-            Ok(line) => {
-                if line.contains(&pattern) {
-                    println!("{}", line);
-                }
-            }
+            Ok(line) => print_line(mode, line, &pattern),
             Err(_) => break,
+        }
+    }
+}
+
+fn print_line(mode: bool, line: String, pattern: &String) {
+    match mode {
+        true => {
+            if line.contains(*&pattern) {
+                println!("{}", line)
+            }
+        }
+        false => {
+            if !line.contains(*&pattern) {
+                println!("{}", line)
+            }
         }
     }
 }
@@ -63,63 +73,6 @@ fn read_file(file_path: PathBuf) -> Lines<BufReader<File>> {
         }
         Err(err) => {
             println!("Error reading the file: {}", err.to_string());
-            exit(1);
-        }
-    }
-}
-
-fn allowed_flags() -> Vec<&'static str> {
-    vec!["-n"]
-}
-
-fn parse_flag(flag: &String) -> &str {
-    let flag = flag.as_str();
-
-    if !allowed_flags().contains(&flag) {
-        println!("Unsupported flag {}", flag);
-        exit(1);
-    }
-    flag
-}
-
-fn parse_input(args: Vec<String>) -> Input {
-    match args.len() {
-        4 => {
-            let pattern = &args[1];
-            let file_path = &args[2];
-            let flag = parse_flag(&args[3]);
-
-            let input = Input {
-                pattern: String::from(pattern),
-                file_path: PathBuf::from(file_path),
-                flag: String::from(flag),
-            };
-            input
-        }
-        3 => {
-            let pattern = &args[1];
-            let file_path = &args[2];
-
-            let input = Input {
-                pattern: String::from(pattern),
-                file_path: PathBuf::from(file_path),
-                flag: String::from("none"),
-            };
-            input
-        }
-        2 => {
-            if args[1] == "--help" {
-                println!("Usage: ./zeteo [PATTERN] [FILE_PATH]\n");
-
-                println!("Flags:");
-                println!("     -n: to count the number of lines");
-                exit(0);
-            }
-            println!("Usage: {:?} <pattern> <filepath>", &args[0]);
-            exit(1);
-        }
-        _ => {
-            println!("Usage: {:?} <pattern> <filepath>", &args[0]);
             exit(1);
         }
     }
