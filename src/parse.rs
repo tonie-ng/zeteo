@@ -51,7 +51,9 @@ pub fn parse_input(args: Vec<String>) -> Input {
                 println!("Usage: ./zeteo [PATTERN] [FILE_PATH]\n");
 
                 println!("Flags:");
-                println!("     -n: to count the number of lines");
+                println!("     -n: print a count of the number of lines with the occurence of the pattern");
+                println!("     -rev: print all the lines without the occurence of the pattern ");
+                println!("     -revn: print a count of the number of lines without the occurence of the pattern");
                 exit(0);
             }
             println!("Usage: {:?} <pattern> <filepath>", &args[0]);
